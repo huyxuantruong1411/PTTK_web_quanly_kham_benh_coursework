@@ -1,0 +1,46 @@
+<!-- app/templates/admin/restore.html -->
+{% extends "base.html" %}
+
+{% block title %}Phục hồi dữ liệu{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Phục hồi dữ liệu</h1>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-12 col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Phục hồi dữ liệu từ file backup</h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning" role="alert">
+                        <strong>Cảnh báo:</strong> Việc phục hồi dữ liệu sẽ thay thế toàn bộ dữ liệu hiện tại. Vui lòng
+                        chắc chắn rằng bạn muốn thực hiện thao tác này.
+                    </div>
+
+                    <form method="POST" action="">
+                        <div class="form-group">
+                            <label for="backup_file">Chọn file backup</label>
+                            <select class="form-control" id="backup_file" name="backup_file" required>
+                                <option value="">-- Chọn file backup --</option>
+                                {% for file in backup_files %}
+                                <option value="{{ file.path }}">{{ file.name }} ({{ file.size }} MB, {{ file.date }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-danger"
+                            onclick="return confirm('Bạn có chắc chắn muốn phục hồi dữ liệu? Toàn bộ dữ liệu hiện tại sẽ bị thay thế.')">
+                            <i class="fas fa-undo"></i> Phục hồi dữ liệu
+                        </button>
+                        <a href="{{ url_for('admin.reports') }}" class="btn btn-secondary">Hủy</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

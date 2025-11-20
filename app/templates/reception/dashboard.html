@@ -1,0 +1,169 @@
+<!-- app/templates/reception/dashboard.html -->
+{% extends "base.html" %}
+
+{% block title %}Bảng điều khiển Lễ tân{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Bảng điều khiển</h1>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Earnings (Monthly) Card Example -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Lịch hẹn tháng này
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ month_appointments }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Earnings (Monthly) Card Example -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Đã khám tháng này
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ month_completed }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Earnings (Monthly) Card Example -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Bệnh nhân mới</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ new_patients }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-plus fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Requests Card Example -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Lịch hẹn hôm nay
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ today_appointments|length }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar-day fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Area Chart -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Lịch hẹn hôm nay</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Thời gian</th>
+                                    <th>Bệnh nhân</th>
+                                    <th>Bác sĩ</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for appointment in today_appointments %}
+                                <tr>
+                                    <td>{{ appointment.NgayGio.strftime('%H:%M') }}</td>
+                                    <td>{{ appointment.benh_nhan.HoTen }}</td>
+                                    <td>{{ appointment.bac_si.HoTen }}</td>
+                                    <td>
+                                        <span
+                                            class="badge {% if appointment.TrangThai == 'Chờ khám' %}badge-warning{% elif appointment.TrangThai == 'Đã khám' %}badge-success{% else %}badge-danger{% endif %}">
+                                            {{ appointment.TrangThai }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('reception.edit_appointment', lh_id=appointment.MaLH) }}"
+                                            class="btn btn-info btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        {% if appointment.TrangThai == 'Chờ khám' %}
+                                        <a href="{{ url_for('reception.payment', lh_id=appointment.MaLH) }}"
+                                            class="btn btn-success btn-sm">
+                                            <i class="fas fa-money-bill"></i>
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pie Chart -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Lịch hẹn sắp tới</h6>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for appointment in upcoming_appointments %}
+                        <a href="{{ url_for('reception.edit_appointment', lh_id=appointment.MaLH) }}"
+                            class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ appointment.benh_nhan.HoTen }}</h6>
+                                <small>{{ appointment.NgayGio.strftime('%d/%m %H:%M') }}</small>
+                            </div>
+                            <p class="mb-1">{{ appointment.bac_si.HoTen }}</p>
+                            <small>
+                                <span
+                                    class="badge {% if appointment.TrangThai == 'Chờ khám' %}badge-warning{% elif appointment.TrangThai == 'Đã khám' %}badge-success{% else %}badge-danger{% endif %}">
+                                    {{ appointment.TrangThai }}
+                                </span>
+                            </small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

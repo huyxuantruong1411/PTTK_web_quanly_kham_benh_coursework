@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Trao đổi nội bộ (Medical Team)</h1>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Phòng Chat Chung</h6>
+        </div>
+        <div class="card-body">
+            <div id="chat-box"
+                style="height: 400px; overflow-y: scroll; border: 1px solid #e3e6f0; padding: 10px; margin-bottom: 15px; background-color: #f8f9fc;">
+            </div>
+            <div class="input-group">
+                <input type="text" id="message-input" class="form-control" placeholder="Nhập tin nhắn...">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" id="send-btn" type="button">Gửi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+        const chatBox = $('#chat-box');
+        let isScrolledToBottom = true;
+
+        // Hàm tải tin nhắn
+        function loadMessages() {
+            $.ajax({
+                url: "{{ url_for('doctor.api_get_messages') }}",
+                method: "GET",
+                success: function (data) {
+                    chatBox.empty();
+                    data.forEach(function (msg) {
+                        let alignClass = msg.is_me ? 'text-right' : 'text-left';
+                        let bgClass = msg.is_me ? 'bg-primary text-white' : 'bg-light text-dark';
+
+                        let html = `
+                            <div class="mb-2 ${alignClass}">
+                                <div class="d-inline-block p-2 rounded ${bgClass}" style="max-width: 70%;">
+                                    <small class="font-weight-bold d-block" style="font-size: 0.75rem; opacity: 0.8;">
+                                        ${msg.user}
+                                    </small>
+                                    <span>${msg.content}</span>
+                                    <small class="d-block mt-1" style="font-size: 0.65rem; opacity: 0.7;">
+                                        ${msg.time}
+                                    </small>
+                                </div>
+                            </div>
+                        `;
+                        chatBox.append(html);
+                    });
+
+                    // Tự động cuộn xuống dưới cùng nếu đang ở dưới cùng
+                    if (isScrolledToBottom) {
+                        chatBox.scrollTop(chatBox[0].scrollHeight);
+                    }
+                }
+            });
+        }
+
+        // Phát hiện người dùng có đang cuộn lên xem tin cũ không
+        chatBox.on('scroll', function () {
+            if (chatBox.scrollTop() + chatBox.innerHeight() >= chatBox[0].scrollHeight - 10) {
+                isScrolledToBottom = true;
+            } else {
+                isScrolledToBottom = false;
+            }
+        });
+
+        // Hàm gửi tin nhắn
+        function sendMessage() {
+            const msg = $('#message-input').val();
+            if (msg.trim() !== "") {
+                $.ajax({
+                    url: "{{ url_for('doctor.api_send_message') }}",
+                    method: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({ message: msg }),
+                    success: function (response) {
+                        if (response.success) {
+                            $('#message-input').val('');
+                            isScrolledToBottom = true; // Force scroll khi mình gửi
+                            loadMessages(); // Tải lại ngay lập tức
+                        }
+                    }
+                });
+            }
+        }
+
+        // Sự kiện click nút Gửi
+        $('#send-btn').click(sendMessage);
+
+        // Sự kiện nhấn Enter
+        $('#message-input').keypress(function (e) {
+            if (e.which == 13) {
+                sendMessage();
+            }
+        });
+
+        // Tải tin nhắn lần đầu và thiết lập interval (3 giây/lần)
+        loadMessages();
+        setInterval(loadMessages, 3000);
+    });
+</script>
+{% endblock %}

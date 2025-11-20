@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Lịch sử khám{% endblock %}
+
+{# --- BỔ SUNG BLOCK HEAD ĐỂ NẠP CHART.JS --- #}
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<h2>Lịch Sử Khám Của {{ bn.HoTen }}</h2>
+
+<div class="table-responsive">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Ngày</th>
+                <th>Chẩn Đoán</th>
+                <th>Hướng Điều Trị</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for kq in history %}
+            <tr>
+                <td>{{ kq.lich_hen.MaLH }}</td>
+                <td>{{ kq.lich_hen.NgayGio.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>{{ kq.ChanDoan }}</td>
+                <td>{{ kq.HuongDieuTri }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<hr class="my-4">
+
+<h3>Tiến Triển Chỉ Số Sinh Tồn</h3>
+
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <div class="chart-container" style="position: relative; height: 400px; width: 100%;">
+            <canvas id="vitalsChart"></canvas>
+        </div>
+        {% if not dates %}
+        <p class="text-center text-muted mt-3">Chưa có dữ liệu chỉ số sinh tồn để vẽ biểu đồ.</p>
+        {% endif %}
+    </div>
+</div>
+
+<script id="vitals-data" type="application/json">
+    {
+        "dates": {{ dates | tojson }},
+        "nhiptim": {{ nhiptim | tojson }},
+        "cannang": {{ cannang | tojson }}
+    }
+</script>
+
+<script src="{{ url_for('static', filename='js/vitals_chart.js') }}"></script>
+{% endblock %}

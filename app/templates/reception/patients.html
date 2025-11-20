@@ -1,0 +1,206 @@
+<!-- app/templates/reception/patients.html (Cập nhật hoàn chỉnh) -->
+{% extends "base.html" %}
+
+{% block title %}Quản lý bệnh nhân{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Quản lý bệnh nhân</h1>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addPatientModal">
+            <i class="fas fa-plus"></i> Thêm bệnh nhân mới
+        </button>
+    </div>
+
+    <!-- Thêm/Sửa bệnh nhân Modal -->
+    <div class="modal fade" id="addPatientModal" tabindex="-1" role="dialog" aria-labelledby="addPatientModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addPatientModalLabel">Thêm bệnh nhân mới</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="patientForm">
+                        <div class="form-group">
+                            <label for="hoten">Họ tên</label>
+                            <input type="text" class="form-control" id="hoten" name="hoten" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="ngaysinh">Ngày sinh</label>
+                            <input type="date" class="form-control" id="ngaysinh" name="ngaysinh" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="gioitinh">Giới tính</label>
+                            <select class="form-control" id="gioitinh" name="gioitinh" required>
+                                <option value="">-- Chọn giới tính --</option>
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="sdt">Số điện thoại</label>
+                            <input type="text" class="form-control" id="sdt" name="sdt" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="diachi">Địa chỉ</label>
+                            <input type="text" class="form-control" id="diachi" name="diachi" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" id="email" name="email">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="savePatient">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bảng danh sách bệnh nhân -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách bệnh nhân</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="patientsTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Mã BN</th>
+                            <th>Họ tên</th>
+                            <th>Ngày sinh</th>
+                            <th>Giới tính</th>
+                            <th>SĐT</th>
+                            <th>Email</th>
+                            <th>Địa chỉ</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for patient in patients %}
+                        <tr>
+                            <td>{{ patient.MaBN }}</td>
+                            <td>{{ patient.HoTen }}</td>
+                            <td>{{ patient.NgaySinh.strftime('%d/%m/%Y') }}</td>
+                            <td>{{ patient.GioiTinh }}</td>
+                            <td>{{ patient.SDT }}</td>
+                            <td>{{ patient.Email }}</td>
+                            <td>{{ patient.DiaChi }}</td>
+                            <td>
+                                <button type="button" class="btn btn-info btn-sm edit-patient"
+                                    data-id="{{ patient.MaBN }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button type="button" class="btn btn-danger btn-sm delete-patient"
+                                    data-id="{{ patient.MaBN }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div> {% endblock %} {% block scripts %}
+<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script>
+    const addPatientUrl = "{{ url_for('reception.add_patient') }}";
+
+    $(document).ready(function () {
+        // Khởi tạo DataTable
+        $('#patientsTable').DataTable({
+            "responsive": true,
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/i18n/Vietnamese.json"
+            }
+        });
+
+        // Xử lý sự kiện thêm bệnh nhân
+        $('#savePatient').click(function () {
+            const formData = {
+                hoten: $('#hoten').val(),
+                ngaysinh: $('#ngaysinh').val(),
+                gioitinh: $('#gioitinh').val(),
+                sdt: $('#sdt').val(),
+                diachi: $('#diachi').val(),
+                email: $('#email').val()
+            };
+
+            $.ajax({
+                url: addPatientUrl,
+                method: 'POST',
+                data: formData,
+                success: function (response) {
+                    if (response.success) {
+                        $('#addPatientModal').modal('hide');
+                        location.reload();
+                    } else {
+                        alert('Lỗi: ' + response.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert('Lỗi khi thêm bệnh nhân! Vui lòng kiểm tra dữ liệu.');
+                }
+            });
+        });
+
+        // Xử lý sự kiện sửa bệnh nhân
+        $('.edit-patient').click(function () {
+            const patientId = $(this).data('id');
+
+            $.ajax({
+                url: '/reception/get_patient/' + patientId,
+                method: 'GET',
+                success: function (patient) {
+                    $('#hoten').val(patient.HoTen);
+                    $('#ngaysinh').val(patient.NgaySinh);
+                    $('#gioitinh').val(patient.GioiTinh);
+                    $('#sdt').val(patient.SDT);
+                    $('#diachi').val(patient.DiaChi);
+                    $('#email').val(patient.Email);
+
+                    $('#addPatientModalLabel').text('Chỉnh sửa thông tin bệnh nhân');
+                    $('#savePatient').text('Cập nhật');
+
+                    $('#addPatientModal').modal('show');
+                },
+                error: function () {
+                    alert('Lỗi khi lấy thông tin bệnh nhân!');
+                }
+            });
+        });
+
+        // Xử lý sự kiện xóa bệnh nhân
+        $('.delete-patient').click(function () {
+            if (confirm('Bạn có chắc chắn muốn xóa bệnh nhân này?')) {
+                const patientId = $(this).data('id');
+
+                $.ajax({
+                    url: '/reception/delete_patient/' + patientId,
+                    method: 'POST',
+                    success: function (response) {
+                        if (response.success) {
+                            location.reload();
+                        } else {
+                            alert('Lỗi: ' + response.message);
+                        }
+                    },
+                    error: function () {
+                        alert('Lỗi khi xóa bệnh nhân!');
+                    }
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

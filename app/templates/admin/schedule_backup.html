@@ -1,0 +1,79 @@
+<!-- app/templates/admin/schedule_backup.html -->
+{% extends "base.html" %}
+
+{% block title %}Cấu hình Backup tự động{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Cấu hình Backup tự động</h1>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-12 col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Cấu hình lịch trình backup</h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="">
+                        <div class="form-group">
+                            <label for="frequency">Tần suất backup</label>
+                            <select class="form-control" id="frequency" name="frequency" required>
+                                <option value="daily">Hàng ngày</option>
+                                <option value="weekly">Hàng tuần</option>
+                                <option value="monthly">Hàng tháng</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="time">Thời gian backup</label>
+                            <input type="time" class="form-control" id="time" name="time" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="keep_days">Số ngày lưu file backup</label>
+                            <input type="number" class="form-control" id="keep_days" name="keep_days" value="7" min="1"
+                                required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Lưu cấu hình
+                        </button>
+                        <a href="{{ url_for('admin.reports') }}" class="btn btn-secondary">Hủy</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-12 col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Hướng dẫn thiết lập backup tự động</h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info" role="alert">
+                        <strong>Lưu ý:</strong> Để sử dụng tính năng backup tự động, bạn cần thiết lập cron job (trên
+                        Linux) hoặc Task Scheduler (trên Windows) để chạy script sau vào thời gian đã cấu hình.
+                    </div>
+
+                    <h5>Trên Linux (cron job):</h5>
+                    <pre><code>0 2 * * * cd /path/to/your/project && python -c "from app.tasks import auto_backup; auto_backup()" > /dev/null 2>&1</code></pre>
+
+                    <h5>Trên Windows (Task Scheduler):</h5>
+                    <ol>
+                        <li>Mở Task Scheduler</li>
+                        <li>Tạo Basic Task mới</li>
+                        <li>Đặt tên và mô tả cho task</li>
+                        <li>Chọn tần suất chạy (Daily, Weekly, Monthly)</li>
+                        <li>Đặt thời gian chạy</li>
+                        <li>Chọn "Start a program"</li>
+                        <li>Đường dẫn program: <code>python</code></li>
+                        <li>Arguments: <code>-c "from app.tasks import auto_backup; auto_backup()"</code></li>
+                        <li>Start in: <code>/path/to/your/project</code></li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

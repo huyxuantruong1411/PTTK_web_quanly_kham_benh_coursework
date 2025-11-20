@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Quản Lý Lịch Hẹn</h2>
+<form method="POST">
+    <select name="mabn">
+        {% for p in patients %}
+        <option value="{{ p.MaBN }}">{{ p.HoTen }}</option>
+        {% endfor %}
+    </select>
+    <select name="mabs">
+        {% for d in doctors %}
+        <option value="{{ d.MaND }}">{{ d.HoTen }}</option>
+        {% endfor %}
+    </select>
+    <input type="datetime-local" name="ngaygio" required>
+    <button type="submit">Đặt Lịch</button>
+</form>
+<table class="table">
+    <thead><tr><th>ID</th><th>Bệnh nhân</th><th>Bác sĩ</th><th>Thời gian</th><th>Trạng thái</th></tr></thead>
+    <tbody>
+        {% for a in appts %}
+        <tr><td>{{ a.MaLH }}</td><td>{{ a.benh_nhan.HoTen }}</td><td>{{ a.bac_si.HoTen }}</td><td>{{ a.NgayGio }}</td><td>{{ a.TrangThai }}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

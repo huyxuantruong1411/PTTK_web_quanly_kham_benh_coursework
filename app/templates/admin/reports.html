@@ -1,0 +1,262 @@
+<!-- app/templates/admin/reports.html -->
+{% extends "base.html" %}
+
+{% block title %}Báo cáo thống kê{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Báo cáo thống kê</h1>
+        <div class="btn-group" role="group">
+            <a href="{{ url_for('admin.reports') }}" class="btn btn-primary">
+                <i class="fas fa-chart-bar"></i> Thống kê
+            </a>
+            <a href="{{ url_for('admin.backup') }}" class="btn btn-info">
+                <i class="fas fa-download"></i> Sao lưu
+            </a>
+            <a href="{{ url_for('admin.restore') }}" class="btn btn-warning">
+                <i class="fas fa-undo"></i> Phục hồi
+            </a>
+            <a href="{{ url_for('admin.schedule_backup') }}" class="btn btn-secondary">
+                <i class="fas fa-clock"></i> Lịch backup
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-12 col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Thống kê tổng quan</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                            aria-labelledby="dropdownMenuLink">
+                            <a class="dropdown-item" href="#" onclick="exportChart('png')">Xuất biểu đồ PNG</a>
+                            <a class="dropdown-item" href="#" onclick="exportChart('jpg')">Xuất biểu đồ JPG</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="reportForm">
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <label for="from_date">Từ ngày</label>
+                                <input type="text" class="form-control" id="from_date" name="from_date"
+                                    value="{{ from_date }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="to_date">Đến ngày</label>
+                                <input type="text" class="form-control" id="to_date" name="to_date"
+                                    value="{{ to_date }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="report_type">Loại báo cáo</label>
+                                <select class="form-control" id="report_type" name="report_type">
+                                    <option value="general" {% if report_type=='general' %}selected{% endif %}>Tổng quan
+                                    </option>
+                                    <option value="excel" {% if report_type=='excel' %}selected{% endif %}>Xuất Excel
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary">Xem báo cáo</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="row mt-4">
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Lượt
+                                                khám</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ exams }}</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-calendar-check fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Doanh
+                                                thu</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{
+                                                "{:,.0f}".format(revenue) }} VNĐ</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-info shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Thuốc
+                                                bán chạy</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{
+                                                top_medicines[0].TenThuoc if top_medicines else 'N/A' }}</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-pills fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-warning shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Bác
+                                                sĩ bận rộn</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ top_doctors[0].HoTen
+                                                if top_doctors else 'N/A' }}</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-user-md fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-xl-8 col-lg-7">
+                            <div class="card shadow mb-4">
+                                <div
+                                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">Biểu đồ lượt khám</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-area">
+                                        <canvas id="appointmentChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-4 col-lg-5">
+                            <div class="card shadow mb-4">
+                                <div
+                                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">Thuốc bán chạy</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-pie pt-4 pb-2">
+                                        <canvas id="medicineChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xl-6 col-lg-6">
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Top 10 thuốc bán chạy</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" id="topMedicinesTable" width="100%"
+                                            cellspacing="0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Tên thuốc</th>
+                                                    <th>Số lượng</th>
+                                                    <th>Doanh thu</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for medicine in top_medicines %}
+                                                <tr>
+                                                    <td>{{ medicine.TenThuoc }}</td>
+                                                    <td>{{ medicine.total_quantity }}</td>
+                                                    <td>{{ "{:,.0f}".format(medicine.total_revenue) }} VNĐ</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-6 col-lg-6">
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Top 10 bác sĩ khám nhiều</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" id="topDoctorsTable" width="100%"
+                                            cellspacing="0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Tên bác sĩ</th>
+                                                    <th>Số lượt khám</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for doctor in top_doctors %}
+                                                <tr>
+                                                    <td>{{ doctor.HoTen }}</td>
+                                                    <td>{{ doctor.total_appointments }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} {% block scripts %}
+<script id="report-data" type="application/json">
+{
+    "from_date": "{{ from_date }}",
+    "to_date": "{{ to_date }}",
+
+    "dates": {{ dates | tojson }},
+    "appointment_counts": {{ appointment_counts | tojson }},
+
+    "top_medicine_names": {{ top_medicines[:5] | map(attribute='TenThuoc') | list | tojson }},
+    "top_medicine_quantities": {{ top_medicines[:5] | map(attribute='total_quantity') | list | tojson }}
+}
+</script>
+
+<script src="{{ url_for('static', filename='js/reports.js') }}"></script>
+{% endblock %}

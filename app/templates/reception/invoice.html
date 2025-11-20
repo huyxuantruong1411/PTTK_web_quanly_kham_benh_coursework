@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Hóa Đơn - Phòng Khám An Tâm</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .info {
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .total {
+            text-align: right;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>PHÒNG KHÁM AN TÂM CLINIC</h1>
+        <p>Địa chỉ: Bình Dương - SĐT: 0909.123.456</p>
+        <h2>HÓA ĐƠN THANH TOÁN</h2>
+        <p>Mã hóa đơn: #HD{{ appt.MaLH }}{{ today.strftime('%m%d') }}</p>
+    </div>
+
+    <div class="info">
+        <p><strong>Bệnh nhân:</strong> {{ appt.benh_nhan.HoTen }} - <strong>Năm sinh:</strong> {{
+            appt.benh_nhan.NgaySinh.year }}</p>
+        <p><strong>Bác sĩ khám:</strong> {{ appt.bac_si.HoTen }}</p>
+        <p><strong>Ngày khám:</strong> {{ appt.NgayGio.strftime('%d/%m/%Y') }}</p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>Dịch vụ / Tên thuốc</th>
+                <th>Đơn vị</th>
+                <th>Số lượng</th>
+                <th>Đơn giá</th>
+                <th>Thành tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>Công khám bệnh</td>
+                <td>Lần</td>
+                <td>1</td>
+                <td>{{ "{:,.0f}".format(kham_phi) }}</td>
+                <td>{{ "{:,.0f}".format(kham_phi) }}</td>
+            </tr>
+            {% for item in chi_tiet_thuoc %}
+            <tr>
+                <td>{{ loop.index + 1 }}</td>
+                <td>{{ item.TenThuoc }}</td>
+                <td>Viên/Gói</td>
+                <td>{{ item.SoLuong }}</td>
+                <td>{{ "{:,.0f}".format(item.DonGia) }}</td>
+                <td>{{ "{:,.0f}".format(item.ThanhTien) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="total">
+        Tổng cộng: {{ "{:,.0f}".format(tong_tien) }} VNĐ
+    </div>
+
+    <div class="footer">
+        <p>Ngày {{ today.day }} tháng {{ today.month }} năm {{ today.year }}</p>
+        <p><strong>Người lập phiếu</strong></p>
+        <br><br><br>
+        <p>{{ current_user.HoTen }}</p>
+    </div>
+
+    <div class="no-print" style="text-align: center; margin-top: 20px;">
+        <button onclick="window.print()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">In Hóa
+            Đơn</button>
+        <a href="{{ url_for('reception.dashboard') }}" style="margin-left: 20px;">Quay lại</a>
+    </div>
+</body>
+
+</html>

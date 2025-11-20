@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Danh Sách Bệnh Nhân Chờ Nhập Chỉ Số</h2>
+<table class="table">
+    <thead><tr><th>ID</th><th>Bệnh nhân</th><th>Thời gian</th><th>Hành động</th></tr></thead>
+    <tbody>
+        {% for q in queue %}
+        <tr><td>{{ q.MaLH }}</td><td>{{ q.benh_nhan.HoTen }}</td><td>{{ q.NgayGio }}</td>
+            <td><a href="{{ url_for('nurse.enter_vitals', appointment_id=q.MaLH) }}" class="btn btn-primary">Nhập Chỉ Số</a></td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

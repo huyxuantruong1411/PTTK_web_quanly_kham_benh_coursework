@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Danh Sách Bệnh Nhân Chờ Khám</h2>
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="examTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Mã LH</th>
+                        <th>Bệnh nhân</th>
+                        <th>Giới tính</th>
+                        <th>Thời gian</th>
+                        <th>Trạng thái Y tá</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in queue %}
+                    <tr>
+                        <td>{{ item.appt.MaLH }}</td>
+                        <td>{{ item.appt.benh_nhan.HoTen }}</td>
+                        <td>{{ item.appt.benh_nhan.GioiTinh }}</td>
+                        <td>{{ item.appt.NgayGio.strftime('%H:%M') }}</td>
+                        <td>
+                            {% if item.has_vitals %}
+                            <span class="badge badge-success">Đã đo chỉ số</span>
+                            {% else %}
+                            <span class="badge badge-warning">Chưa đo chỉ số</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('doctor.exam_detail', appointment_id=item.appt.MaLH) }}"
+                                class="btn btn-primary btn-sm">
+                                <i class="fas fa-stethoscope"></i> Khám
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

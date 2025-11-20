@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}Bảng điều khiển Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Bảng điều khiển</h1>
+        <div class="btn-group" role="group">
+            <a href="{{ url_for('admin.reports') }}" class="btn btn-primary">
+                <i class="fas fa-chart-bar"></i> Thống kê
+            </a>
+            <a href="{{ url_for('admin.backup') }}" class="btn btn-info">
+                <i class="fas fa-download"></i> Sao lưu
+            </a>
+            <a href="{{ url_for('admin.restore') }}" class="btn btn-warning">
+                <i class="fas fa-undo"></i> Phục hồi
+            </a>
+            <a href="{{ url_for('admin.schedule_backup') }}" class="btn btn-secondary">
+                <i class="fas fa-clock"></i> Lịch backup
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Tổng người dùng</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_users }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Người dùng hoạt động
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ active_users }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-check fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Tổng bệnh nhân</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_patients }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-injured fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Tổng thuốc</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_medicines }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-pills fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Thống kê tháng này</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Lượt
+                                                khám</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ month_appointments }}
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <div class="card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Đã
+                                                khám</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ month_completed }}
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-check fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <div class="card border-left-info shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Doanh
+                                                thu</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{
+                                                "{:,.0f}".format(month_revenue) }} VNĐ</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <div class="card border-left-warning shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Thuốc
+                                                sắp hết</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ low_stock_medicines
+                                                }}</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <div class="card border-left-info shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutors align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Bệnh
+                                                nhân mới</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ new_patients }}</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-user-plus fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Báo cáo gần đây</h6>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for report in recent_reports %}
+                        <a href="{{ url_for('admin.reports') }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ report.LoaiBaoCao }}</h6>
+                                <small>{{ report.NgayLap.strftime('%d/%m/%Y') }}</small>
+                            </div>
+                            <p class="mb-1">{{ report.TuNgay.strftime('%d/%m/%Y') }} - {{
+                                report.DenNgay.strftime('%d/%m/%Y') }}</p>
+                            <small>
+                                {% if report.TongSo %}
+                                <span class="badge badge-primary">{{ report.TongSo }} lượt</span>
+                                {% endif %}
+                                {% if report.DoanhThu %}
+                                <span class="badge badge-success">{{ "{:,.0f}".format(report.DoanhThu) }} VNĐ</span>
+                                {% endif %}
+                            </small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,162 @@
+<!-- app/templates/pharmacist/dashboard.html -->
+{% extends "base.html" %}
+
+{% block title %}Bảng điều khiển Dược sĩ{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Bảng điều khiển</h1>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Earnings (Monthly) Card Example -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Đơn chờ phát</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ pending_prescriptions }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Earnings (Monthly) Card Example -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Đã phát hôm nay</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ today_dispensed }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Earnings (Monthly) Card Example -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Thuốc sắp hết</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ low_stock_medicines }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Requests Card Example -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Thuốc sắp HSD</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ expiring_medicines }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Area Chart -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Đơn thuốc gần đây</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Mã đơn</th>
+                                    <th>Bệnh nhân</th>
+                                    <th>Bác sĩ</th>
+                                    <th>Ngày kê</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for prescription in recent_prescriptions %}
+                                <tr>
+                                    <td>{{ prescription.MaDT }}</td>
+                                    <td>{{ prescription.ket_qua.lich_hen.benh_nhan.HoTen }}</td>
+                                    <td>{{ prescription.ket_qua.bac_si.HoTen }}</td>
+                                    <td>{{ prescription.NgayKe.strftime('%d/%m/%Y') }}</td>
+                                    <td>
+                                        <span
+                                            class="badge {% if prescription.TrangThai == 'Chờ phát' %}badge-warning{% else %}badge-success{% endif %}">
+                                            {{ prescription.TrangThai }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('pharmacist.prescription_detail', dt_id=prescription.MaDT) }}"
+                                            class="btn btn-info btn-sm">
+                                            <i class="fas fa-info-circle"></i>
+                                        </a>
+                                        {% if prescription.TrangThai == 'Chờ phát' %}
+                                        <a href="{{ url_for('pharmacist.dispense', dt_id=prescription.MaDT) }}"
+                                            class="btn btn-success btn-sm">
+                                            <i class="fas fa-check"></i>
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pie Chart -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Thuốc sắp hết hàng</h6>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for medicine in low_stock_list %}
+                        <a href="{{ url_for('pharmacist.inventory') }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ medicine.TenThuoc }}</h6>
+                                <span class="badge badge-danger">{{ medicine.SoLuongTon }}</span>
+                            </div>
+                            <p class="mb-1">Đơn vị: {{ medicine.DonVi }}</p>
+                            <small>Ngưỡng cảnh báo: {{ medicine.SoLuongCanhBao }}</small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

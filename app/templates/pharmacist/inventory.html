@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Quản Lý Kho Thuốc</h2>
+<form method="POST">
+    <input type="hidden" name="add_drug">
+    <input type="text" name="ten_thuoc" placeholder="Tên thuốc" required>
+    <input type="text" name="donvi" placeholder="Đơn vị" required>
+    <input type="date" name="handung" required>
+    <input type="number" name="gia" placeholder="Giá" required>
+    <input type="number" name="soluong" placeholder="Số lượng ban đầu" required>
+    <button type="submit">Thêm Thuốc</button>
+</form>
+<hr>
+<h3>Nhập Kho</h3>
+<form method="POST">
+    <input type="hidden" name="import">
+    <select name="ma_thuoc">
+        {% for d in drugs %}
+        <option value="{{ d.MaThuoc }}">{{ d.TenThuoc }}</option>
+        {% endfor %}
+    </select>
+    <input type="number" name="soluong" placeholder="Số lượng nhập" required>
+    <button type="submit">Nhập Kho</button>
+</form>
+<table class="table">
+    <thead><tr><th>ID</th><th>Tên</th><th>Tồn</th><th>Hạn</th></tr></thead>
+    <tbody>
+        {% for d in drugs %}
+        <tr><td>{{ d.MaThuoc }}</td><td>{{ d.TenThuoc }}</td><td>{{ d.SoLuongTon }}</td><td>{{ d.HanDung }}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,202 @@
+<!-- app/templates/patient/results.html (Cập nhật hoàn chỉnh) -->
+{% extends "base.html" %}
+
+{% block title %}Kết quả khám{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Kết quả khám</h1>
+        <a href="{{ url_for('patient.dashboard') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại bảng điều khiển
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- Thông tin bệnh nhân -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thông tin bệnh nhân</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <img class="img-profile rounded-circle"
+                            src="{{ url_for('static', filename='images/User-Account-Person-PNG-File.png') }}"
+                            style="width: 60px; height: 60px;" alt="">
+                    </div>
+                    <hr>
+                    <p><strong>Họ tên:</strong> {{ kq.lich_hen.benh_nhan.HoTen }}</p>
+                    <p><strong>Ngày sinh:</strong> {{ kq.lich_hen.benh_nhan.NgaySinh.strftime('%d/%m/%Y') }}</p>
+                    <p><strong>Giới tính:</strong> {{ kq.lich_hen.benh_nhan.GioiTinh }}</p>
+                    <p><strong>SĐT:</strong> {{ kq.lich_hen.benh_nhan.SDT }}</p>
+                    <p><strong>Địa chỉ:</strong> {{ kq.lich_hen.benh_nhan.DiaChi }}</p>
+                    <p><strong>Email:</strong> {{ kq.lich_hen.benh_nhan.Email }}</p>
+                    <hr>
+                    <p><strong>Bác sĩ:</strong> {{ kq.bac_si.HoTen }}</p>
+                    <p><strong>Chuyên khoa:</strong> {{ kq.bac_si.ChuyenKhoa }}</p>
+                    <p><strong>Ngày khám:</strong> {{ kq.NgayKham.strftime('%d/%m/%Y') }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kết quả khám -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Kết quả khám</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <h5>Chẩn đoán</h5>
+                            <p>{{ kq.ChanDoan }}</p>
+                        </div>
+                        <div class="col-12">
+                            <h5>Hướng điều trị</h5>
+                            <p>{{ kq.HuongDieuTri }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Chỉ số sinh tồn -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <h5>Chỉ số sinh tồn</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Chỉ số</th>
+                                            <th>Giá trị</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Huyết áp</td>
+                                            <td>{{ kq.chi_so.HuyetAp }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Nhiệt độ</td>
+                                            <td>{{ kq.chi_so.NhietDo }}°C</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Cân nặng</td>
+                                            <td>{{ kq.chi_so.CanNang }} kg</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Nhịp tim</td>
+                                            <td>{{ kq.chi_so.NhipTim }} lần/phút</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Biểu đồ tiến triển sức khỏe -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <h5>Biểu đồ tiến triển sức khỏe</h5>
+                            <div class="chart-container" style="height: 300px;">
+                                <canvas id="healthChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Dữ liệu mẫu cho biểu đồ tiến triển sức khỏe
+    // Trong thực tế, dữ liệu này sẽ được lấy từ cơ sở dữ liệu
+    const healthData = {
+        labels: ['Lần khám 1', 'Lần khám 2', 'Lần khám 3', 'Lần khám 4', 'Lần khám 5'],
+        weight: [70, 72, 71, 73, 75],
+        bloodPressure: [120, 118, 122, 125, 120],
+        temperature: [36.5, 36.8, 36.7, 36.6, 36.5],
+        heartRate: [80, 78, 82, 79, 76]
+    };
+
+    // Tạo biểu đồ tiến triển sức khỏe
+    const ctx = document.getElementById('healthChart').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: healthData.labels,
+            datasets: [
+                {
+                    label: 'Cân nặng (kg)',
+                    data: healthData.weight,
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.1,
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'Huyết áp',
+                    data: healthData.bloodPressure.map(bp => parseInt(bp.split('/')[0])),
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    tension: 0.1,
+                    yAxisID: 'y1'
+                },
+                {
+                    label: 'Nhiệt độ (°C)',
+                    data: healthData.temperature,
+                    borderColor: 'rgb(255, 205, 86)',
+                    backgroundColor: 'rgba(255, 205, 86, 0.2)',
+                    tension: 0.1,
+                    yAxisID: 'y2'
+                },
+                {
+                    label: 'Nhịp tim (lần/phút)',
+                    data: healthData.heartRate,
+                    borderColor: 'rgb(54, 162, 235)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    tension: 0.1,
+                    yAxisID: 'y3'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Tiến triển sức khỏe'
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                }
+            },
+            scales: {
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Lần khám'
+                    }
+                },
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Giá trị'
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}Bảng điều khiển Bác sĩ{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Bảng điều khiển</h1>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Lượt khám tháng -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Lượt khám tháng này
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ month_exams }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lịch hẹn hôm nay -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Lịch hẹn hôm nay
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ today_appointments|length }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar-day fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lịch hẹn tuần này -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Lịch hẹn tuần này</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ week_appointments|length }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar-week fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cần tái khám -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Cần tái khám</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ follow_up_patients|length }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-bell fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart + Today appointments -->
+    <div class="row">
+        <!-- Weekly Chart -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Thống kê lượt khám tuần này</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="weeklyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Today's Appointments -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Lịch hẹn hôm nay</h6>
+                </div>
+                <div class="card-body">
+                    <div class="list-group pt-2">
+                        {% for appointment in today_appointments %}
+                        <a href="{{ url_for('doctor.exam_detail', appointment_id=appointment.MaLH) }}"
+                            class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ appointment.benh_nhan.HoTen }}</h6>
+                                <small>{{ appointment.NgayGio.strftime('%H:%M') }}</small>
+                            </div>
+                            <p class="mb-1">{{ appointment.benh_nhan.SDT }}</p>
+                            <small>
+                                <span class="badge 
+                                    {% if appointment.TrangThai == 'Chờ khám' %}badge-warning
+                                    {% elif appointment.TrangThai == 'Đã khám' %}badge-success
+                                    {% else %}badge-danger{% endif %}">
+                                    {{ appointment.TrangThai }}
+                                </span>
+                            </small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tables -->
+    <div class="row">
+        <!-- Follow-up Patients -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Bệnh nhân cần tái khám</h6>
+                </div>
+                <div class="card-body">
+                    {% if follow_up_patients %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Họ tên</th>
+                                    <th>Ngày khám gần nhất</th>
+                                    <th>Ghi chú</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for patient in follow_up_patients %}
+                                <tr>
+                                    <td>{{ patient.HoTen }}</td>
+                                    <td>{{ patient.NgayKham.strftime('%d/%m/%Y') }}</td>
+                                    <td>{{ patient.GhiChu }}</td>
+                                    <td>
+                                        <a href="{{ url_for('doctor.patient_history', patient_id=patient.MaBN) }}"
+                                            class="btn btn-info btn-sm">Xem hồ sơ</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p>Không có bệnh nhân nào cần tái khám.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Week Appointments -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Lịch hẹn tuần này</h6>
+                </div>
+                <div class="card-body">
+                    {% if week_appointments %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Thời gian</th>
+                                    <th>Bệnh nhân</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for appointment in week_appointments %}
+                                <tr>
+                                    <td>{{ appointment.NgayGio.strftime('%d/%m %H:%M') }}</td>
+                                    <td>{{ appointment.benh_nhan.HoTen }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if appointment.TrangThai == 'Chờ khám' %}badge-warning
+                                            {% elif appointment.TrangThai == 'Đã khám' %}badge-success
+                                            {% else %}badge-danger{% endif %}">
+                                            {{ appointment.TrangThai }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('doctor.exam_detail', appointment_id=appointment.MaLH) }}"
+                                            class="btn btn-info btn-sm">Chi tiết</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p>Không có lịch hẹn nào trong tuần này.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+
+<!-- JSON DATA FOR JS -->
+<script id="dashboard-data" type="application/json">
+{
+    "daily_labels": {{ daily_stats | map(attribute='day') | list | tojson }},
+    "daily_values": {{ daily_stats | map(attribute='count') | list | tojson }}
+}
+</script>
+
+<!-- External JS -->
+<script src="{{ url_for('static', filename='js/dashboard_doctor.js') }}"></script>
+
+{% endblock %}
+{% endblock %}

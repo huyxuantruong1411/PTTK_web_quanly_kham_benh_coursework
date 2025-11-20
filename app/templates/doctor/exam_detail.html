@@ -1,0 +1,327 @@
+<!-- app/templates/doctor/exam_detail.html -->
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Chi tiết khám bệnh</h1>
+        <a href="{{ url_for('doctor.exam_list') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại danh sách
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- Thông tin bệnh nhân -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thông tin bệnh nhân</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <img class="img-profile rounded-circle"
+                            src="{{ url_for('static', filename='images/User-Account-Person-PNG-File.png') }}"
+                            style="width: 60px; height: 60px;" alt="">
+                    </div>
+                    <hr>
+                    <p><strong>Họ tên:</strong> {{ appt.benh_nhan.HoTen }}</p>
+                    <p><strong>Ngày sinh:</strong> {{ appt.benh_nhan.NgaySinh.strftime('%d/%m/%Y') }}</p>
+                    <p><strong>Giới tính:</strong> {{ appt.benh_nhan.GioiTinh }}</p>
+                    <p><strong>SĐT:</strong> {{ appt.benh_nhan.SDT }}</p>
+                    <p><strong>Địa chỉ:</strong> {{ appt.benh_nhan.DiaChi }}</p>
+                    <p><strong>Email:</strong> {{ appt.benh_nhan.Email }}</p>
+                    <hr>
+                    <p><strong>Bác sĩ:</strong> {{ appt.bac_si.HoTen }}</p>
+                    <p><strong>Chuyên khoa:</strong> {{ appt.bac_si.ChuyenKhoa }}</p>
+                    <p><strong>Thời gian:</strong> {{ appt.NgayGio.strftime('%H:%M %d/%m/%Y') }}</p>
+                    <p><strong>Trạng thái:</strong>
+                        <span
+                            class="badge {% if appt.TrangThai == 'Chờ khám' %}badge-warning{% elif appt.TrangThai == 'Đã khám' %}badge-success{% else %}badge-danger{% endif %}">
+                            {{ appt.TrangThai }}
+                        </span>
+                    </p>
+
+                    <!-- Thông tin dị ứng -->
+                    {% if allergies %}
+                    <hr>
+                    <h6>Thông tin dị ứng</h6>
+                    <div class="alert alert-danger">
+                        <p><strong>Bệnh nhân có dị ứng với các chất sau:</strong></p>
+                        <ul>
+                            {% for allergy in allergies %}
+                            <li>{{ allergy.TenChat }}: {{ allergy.PhanUng }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Form khám bệnh -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Kết quả khám</h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="examForm">
+                        <!-- Chỉ số sinh tồn -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <h5>Chỉ số sinh tồn</h5>
+                                {% if vitals %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i> Y tá đã nhập chỉ số sinh tồn vào lúc {{
+                                    vitals.y_ta.HoTen }}.
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="huyetap">Huyết áp</label>
+                                    <input type="text" class="form-control" id="huyetap" name="huyetap"
+                                        value="{{ vitals.HuyetAp if vitals else '' }}" placeholder="120/80">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="nhietdo">Nhiệt độ (°C)</label>
+                                    <input type="number" step="0.1" class="form-control" id="nhietdo" name="nhietdo"
+                                        value="{{ vitals.NhietDo if vitals else '' }}" placeholder="36.5">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="cannang">Cân nặng (kg)</label>
+                                    <input type="number" step="0.1" class="form-control" id="cannang" name="cannang"
+                                        value="{{ vitals.CanNang if vitals else '' }}" placeholder="65">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="nhiptim">Nhịp tim (lần/phút)</label>
+                                    <input type="number" class="form-control" id="nhiptim" name="nhiptim"
+                                        value="{{ vitals.NhipTim if vitals else '' }}" placeholder="80">
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- Chẩn đoán và hướng điều trị -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="chandoan">Chẩn đoán</label>
+                                    <textarea class="form-control" id="chandoan" name="chandoan" rows="3"
+                                        required>{{ kq.ChanDoan if kq else '' }}</textarea>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="huongdieutri">Hướng điều trị</label>
+                                    <textarea class="form-control" id="huongdieutri" name="huongdieutri"
+                                        rows="3">{{ kq.HuongDieuTri if kq else '' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Thông tin tái khám -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="canhbao_taikham">Cảnh báo tái khám</label>
+                                    <input type="date" class="form-control" id="canhbao_taikham" name="canhbao_taikham"
+                                        value="{{ kq.CanhBaoTaiKham.strftime('%Y-%m-%d') if kq.CanhBaoTaiKham else '' }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="ghichu_taikham">Ghi chú tái khám</label>
+                                    <input type="text" class="form-control" id="ghichu_taikham" name="ghichu_taikham"
+                                        value="{{ kq.GhiChuTaiKham if kq.GhiChuTaiKham else '' }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- Đơn thuốc -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <h5>Đơn thuốc</h5>
+                                <div id="prescription-container">
+                                    <div class="prescription-item row mb-2">
+                                        <div class="col-md-5">
+                                            <select class="form-control medicine-select" name="thuoc_id">
+                                                <option value="">-- Chọn thuốc --</option>
+                                                {% for drug in drugs %}
+                                                <option value="{{ drug.MaThuoc }}">{{ drug.TenThuoc }} ({{ drug.DonVi
+                                                    }})</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <input type="number" class="form-control" name="soluong"
+                                                placeholder="Số lượng" min="1">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="text" class="form-control" name="lieudung"
+                                                placeholder="Liều dùng">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button type="button" class="btn btn-danger btn-sm remove-prescription">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-info btn-sm" id="add-prescription">
+                                    <i class="fas fa-plus"></i> Thêm thuốc
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Cảnh báo tương tác thuốc và dị ứng -->
+                        <div id="interaction-alerts" class="mb-3"></div>
+                        <div id="allergy-alerts" class="mb-3"></div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Lưu kết quả khám
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+
+<!-- Truyền dữ liệu từ Flask sang JS bằng JSON script -->
+<script id="exam-data" type="application/json">
+    {
+        "patientId": {{ appt.MaBN | tojson }},
+        "urlCheckInteractions": {{ url_for("doctor.check_interactions") | tojson }},
+        "urlCheckAllergy": {{ url_for("doctor.check_allergies") | tojson }} 
+    }
+</script>
+
+<script>
+    $(document).ready(function () {
+        const examData = JSON.parse(document.getElementById('exam-data').textContent);
+
+        // Khởi tạo Select2
+        $('.medicine-select').select2({ width: '100%' });
+
+        // Khởi tạo date picker
+        flatpickr("#canhbao_taikham", { locale: "vn", dateFormat: "Y-m-d", minDate: "today" });
+
+        // Thêm thuốc mới
+        $('#add-prescription').click(function () {
+            const newItem = $('.prescription-item:first').clone();
+            newItem.find('select').val('').trigger('change');
+            newItem.find('input').val('');
+            $('#prescription-container').append(newItem);
+            newItem.find('.medicine-select').select2({ width: '100%' });
+        });
+
+        // Xóa thuốc
+        $(document).on('click', '.remove-prescription', function () {
+            if ($('.prescription-item').length > 1) {
+                $(this).closest('.prescription-item').remove();
+            } else {
+                alert('Phải có ít nhất một thuốc trong đơn!');
+            }
+        });
+
+        // Kiểm tra tương tác thuốc
+        $(document).on('change', '.medicine-select', function () {
+            checkDrugInteractions();
+            checkAllergyWarnings();
+        });
+
+        function checkDrugInteractions() {
+            const drugIds = [];
+            $('.medicine-select').each(function () {
+                const value = $(this).val();
+                if (value) drugIds.push(parseInt(value));
+            });
+            if (drugIds.length < 2) { $('#interaction-alerts').empty(); return; }
+
+            $.ajax({
+                url: examData.urlCheckInteractions,
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ drug_ids: drugIds }),
+                success: function (response) { displayInteractions(response.interactions); }
+            });
+        }
+
+        function checkAllergyWarnings() {
+            const drugIds = [];
+            $('.medicine-select').each(function () {
+                const value = $(this).val();
+                if (value) drugIds.push(parseInt(value));
+            });
+            if (drugIds.length < 1) { $('#allergy-alerts').empty(); return; }
+
+            $.ajax({
+                url: examData.urlCheckAllergy,
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ drug_ids: drugIds, patient_id: examData.patientId }),
+                success: function (response) { displayAllergyWarnings(response.warnings); }
+            });
+        }
+
+        function displayInteractions(interactions) {
+            const container = $('#interaction-alerts'); container.empty();
+            if (!interactions.length) return;
+
+            const alertClass = interactions.some(i => i.severity === 'Nghiêm trọng') ? 'alert-danger' :
+                interactions.some(i => i.severity === 'Trung bình') ? 'alert-warning' : 'alert-info';
+
+            const alertHtml = `
+            <div class="alert ${alertClass}">
+                <h6>Cảnh báo tương tác thuốc:</h6>
+                <ul>
+                    ${interactions.map(i => `<li><strong>${i.drug1} + ${i.drug2}:</strong> ${i.description} (${i.severity})</li>`).join('')}
+                </ul>
+            </div>`;
+            container.html(alertHtml);
+        }
+
+        function displayAllergyWarnings(warnings) {
+            const container = $('#allergy-alerts'); container.empty();
+            if (!warnings.length) return;
+
+            const alertHtml = `
+            <div class="alert alert-danger">
+                <h6>Cảnh báo dị ứng:</h6>
+                <ul>
+                    ${warnings.map(w => `<li><strong>${w.drug}:</strong> Dị ứng với ${w.allergen} - ${w.reaction}</li>`).join('')}
+                </ul>
+            </div>`;
+            container.html(alertHtml);
+        }
+
+        // Kiểm tra khi tải trang
+        checkDrugInteractions();
+        checkAllergyWarnings();
+    });
+</script>
+{% endblock %}

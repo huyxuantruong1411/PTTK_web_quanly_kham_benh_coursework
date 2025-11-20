@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Nhập Chỉ Số Sinh Tồn Cho {{ appt.benh_nhan.HoTen }}</h2>
+<form method="POST">
+    <label>Huyết áp: <input type="text" name="huyetap" required></label>
+    <label>Nhiệt độ: <input type="number" step="0.1" name="nhietdo" required></label>
+    <label>Cân nặng: <input type="number" step="0.1" name="cannang" required></label>
+    <label>Nhịp tim: <input type="number" name="nhiptim" required></label>
+    <button type="submit" class="btn btn-primary">Lưu</button>
+</form>
+{% endblock %}

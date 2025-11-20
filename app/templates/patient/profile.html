@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Hồ sơ cá nhân{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Hồ sơ cá nhân của {{ patient.HoTen }}</h1>
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <p><strong>Ngày sinh:</strong> {{ patient.NgaySinh.strftime('%d/%m/%Y') }}</p>
+            <p><strong>Giới tính:</strong> {{ patient.GioiTinh }}</p>
+            <p><strong>SĐT:</strong> {{ patient.SDT }}</p>
+            <p><strong>Địa chỉ:</strong> {{ patient.DiaChi }}</p>
+            <p><strong>Email:</strong> {{ patient.Email }}</p>
+            {% if allergies %}
+            <h6>Dị ứng:</h6>
+            <ul>
+                {% for allergy in allergies %}
+                <li>{{ allergy.TenChat }}: {{ allergy.PhanUng }}</li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>Không có thông tin dị ứng.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

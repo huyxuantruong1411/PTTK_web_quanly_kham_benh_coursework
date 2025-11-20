@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Đặt lịch hẹn{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Đặt lịch hẹn</h2>
+    <div class="card mt-4">
+        <div class="card-body">
+            <form method="POST" action="">
+                <div class="form-group mb-3">
+                    <label for="doctor_id">Chọn bác sĩ</label>
+                    <select class="form-control" id="doctor_id" name="doctor_id" required>
+                        <option value="">-- Chọn bác sĩ --</option>
+                        {% for doctor in doctors %}
+                        <option value="{{ doctor.MaND }}">{{ doctor.HoTen }} - {{ doctor.ChuyenKhoa }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="appointment_date">Ngày hẹn</label>
+                    <input type="date" class="form-control" id="appointment_date" name="appointment_date" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="appointment_time">Giờ hẹn</label>
+                    <input type="time" class="form-control" id="appointment_time" name="appointment_time" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Đặt lịch</button>
+                <a href="{{ url_for('patient.dashboard') }}" class="btn btn-secondary">Hủy</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Đặt ngày tối thiểu là ngày hôm nay
+    document.getElementById('appointment_date').min = new Date().toISOString().split('T')[0];
+</script>
+{% endblock %}

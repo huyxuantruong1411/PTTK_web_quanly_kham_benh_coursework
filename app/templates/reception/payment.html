@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Thanh Toán Cho Lịch Hẹn #{{ lh.MaLH }}</h2>
+<p>Bệnh nhân: {{ lh.benh_nhan.HoTen }}</p>
+<p>Tổng tiền: {{ tong_tien }} VND</p>
+<form method="POST">
+    <button type="submit" class="btn btn-success">Xác Nhận Thanh Toán</button>
+</form>
+{% endblock %}

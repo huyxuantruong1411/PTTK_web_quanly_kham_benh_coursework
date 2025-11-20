@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Chi tiết đơn thuốc{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Chi tiết đơn thuốc #{{ prescription.MaDT }}</h1>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thông tin đơn thuốc</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Bệnh nhân:</strong> {{ prescription.ket_qua.lich_hen.benh_nhan.HoTen }}</p>
+                            <p><strong>Ngày sinh:</strong> {{
+                                prescription.ket_qua.lich_hen.benh_nhan.NgaySinh.strftime('%d/%m/%Y') }}</p>
+                            <p><strong>Giới tính:</strong> {{ prescription.ket_qua.lich_hen.benh_nhan.GioiTinh }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Bác sĩ:</strong> {{ prescription.ket_qua.bac_si.HoTen }}</p>
+                            <p><strong>Ngày kê đơn:</strong> {{ prescription.NgayKe.strftime('%d/%m/%Y') }}</p>
+                            <p><strong>Trạng thái:</strong>
+                                <span
+                                    class="badge {% if prescription.TrangThai == 'Chờ phát' %}badge-warning{% else %}badge-success{% endif %}">
+                                    {{ prescription.TrangThai }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive mt-4">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Tên thuốc</th>
+                                    <th>Hoạt chất</th>
+                                    <th>Số lượng</th>
+                                    <th>Đơn vị</th>
+                                    <th>Liều dùng</th>
+                                    <th>Ghi chú</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for detail in prescription.chi_tiet %}
+                                <tr>
+                                    <td>{{ detail.thuoc.TenThuoc }}</td>
+                                    <td>{{ detail.thuoc.HoatChat or 'N/A' }}</td>
+                                    <td>{{ detail.SoLuong }}</td>
+                                    <td>{{ detail.thuoc.DonVi }}</td>
+                                    <td>{{ detail.LieuDung }}</td>
+                                    <td>{{ detail.GhiChu }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {% if prescription.TrangThai == 'Chờ phát' %}
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('pharmacist.dispense', dt_id=prescription.MaDT) }}" class="btn btn-success">
+                            <i class="fas fa-check"></i> Xác nhận cấp phát
+                        </a>
+                        <a href="{{ url_for('pharmacist.prescription_list') }}" class="btn btn-secondary">Quay lại</a>
+                    </div>
+                    {% else %}
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('pharmacist.prescription_list') }}" class="btn btn-primary">Quay lại</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-5">
+            {% if interactions %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-warning">Cảnh báo tương tác thuốc</h6>
+                </div>
+                <div class="card-body">
+                    {% for interaction in interactions %}
+                    <div class="alert alert-{{ 'danger' if interaction.severity == 'Nghiêm trọng' else 'warning' if interaction.severity == 'Trung bình' else 'info' }}"
+                        role="alert">
+                        <h6 class="alert-heading">{{ interaction.drug1 }} + {{ interaction.drug2 }}</h6>
+                        <p class="mb-1"><strong>Mức độ:</strong> {{ interaction.severity }}</p>
+                        <p class="mb-0">{{ interaction.description }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if allergy_warnings %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-danger">Cảnh báo dị ứng</h6>
+                </div>
+                <div class="card-body">
+                    {% for warning in allergy_warnings %}
+                    <div class="alert alert-danger" role="alert">
+                        <h6 class="alert-heading">{{ warning.drug }}</h6>
+                        <p class="mb-1"><strong>Chất gây dị ứng:</strong> {{ warning.allergen }}</p>
+                        <p class="mb-0"><strong>Phản ứng:</strong> {{ warning.reaction }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Chuyển dữ liệu sang JSON để JS xử lý -->
+<script id="prescription-data" type="application/json">
+{{ prescription.chi_tiet | tojson | safe }}
+</script>
+
+<script src="{{ url_for('static', filename='js/prescription.js') }}"></script>
+{% endblock %}

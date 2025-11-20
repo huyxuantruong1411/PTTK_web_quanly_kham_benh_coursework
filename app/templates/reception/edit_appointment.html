@@ -1,0 +1,92 @@
+<!-- app/templates/reception/edit_appointment.html (Tạo mới) -->
+{% extends "base.html" %}
+
+{% block title %}Chỉnh sửa lịch hẹn{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Chỉnh sửa lịch hẹn</h1>
+        <a href="{{ url_for('reception.appointments') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại danh sách
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thông tin lịch hẹn</h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="form-group">
+                            <label for="mabn">Bệnh nhân</label>
+                            <select class="form-control" id="mabn" name="mabn" required>
+                                <option value="">-- Chọn bệnh nhân --</option>
+                                {% for patient in patients %}
+                                <option value="{{ patient.MaBN }}" {% if appointment.MaBN==patient.MaBN %}selected{%
+                                    endif %}>
+                                    {{ patient.HoTen }} ({{ patient.SDT }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="mabs">Bác sĩ</label>
+                            <select class="form-control" id="mabs" name="mabs" required>
+                                <option value="">-- Chọn bác sĩ --</option>
+                                {% for doctor in doctors %}
+                                <option value="{{ doctor.MaND }}" {% if appointment.MaBS==doctor.MaND %}selected{% endif
+                                    %}>
+                                    {{ doctor.HoTen }} ({{ doctor.ChuyenKhoa }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ngaygio">Ngày giờ hẹn</label>
+                            <input type="text" class="form-control" id="ngaygio" name="ngaygio"
+                                value="{{ appointment.NgayGio.strftime('%Y-%m-%dT%H:%M') }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="trangthai">Trạng thái</label>
+                            <select class="form-control" id="trangthai" name="trangthai" required>
+                                <option value="Chờ khám" {% if appointment.TrangThai=='Chờ khám' %}selected{% endif %}>
+                                    Chờ khám</option>
+                                <option value="Đã khám" {% if appointment.TrangThai=='Đã khám' %}selected{% endif %}>Đã
+                                    khám</option>
+                                <option value="Hủy" {% if appointment.TrangThai=='Hủy' %}selected{% endif %}>Hủy
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Lưu thay đổi
+                            </button>
+                            <a href="{{ url_for('reception.appointments') }}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Hủy
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Khởi tạo datetime picker
+    flatpickr("#ngaygio", {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i",
+        locale: "vn",
+        minDate: "today"
+    });
+</script>
+{% endblock %}

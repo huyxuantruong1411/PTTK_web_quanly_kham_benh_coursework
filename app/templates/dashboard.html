@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Xin chào, {{ user.HoTen }}</h2>
+<p>Vai trò: <strong>{{ user.VaiTro }}</strong></p>
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Bệnh nhân</h5>
+                <p class="card-text">Quản lý hồ sơ</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Lịch hẹn</h5>
+                <p class="card-text">Xem lịch khám hôm nay</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

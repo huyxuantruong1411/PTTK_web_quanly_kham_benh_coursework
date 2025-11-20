@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}Quản lý người dùng{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Quản lý người dùng</h1>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addUserModal">
+            <i class="fas fa-plus"></i> Thêm người dùng mới
+        </button>
+    </div>
+
+    <div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="addUserModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addUserModalLabel">Thêm người dùng mới</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="userForm">
+                        <div class="form-group">
+                            <label for="username">Tên đăng nhập</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Mật khẩu</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="hoten">Họ tên</label>
+                            <input type="text" class="form-control" id="hoten" name="hoten" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" id="email" name="email">
+                        </div>
+                        <div class="form-group">
+                            <label for="sdt">Số điện thoại</label>
+                            <input type="text" class="form-control" id="sdt" name="sdt">
+                        </div>
+                        <div class="form-group">
+                            <label for="chuyenkhoa">Chuyên khoa (nếu là bác sĩ)</label>
+                            <input type="text" class="form-control" id="chuyenkhoa" name="chuyenkhoa">
+                        </div>
+                        <div class="form-group">
+                            <label for="vaitro">Vai trò</label>
+                            <select class="form-control" id="vaitro" name="vaitro" required>
+                                {% for role in vai_tros %}
+                                <option value="{{ role.MaVaiTro }}">{{ role.TenVaiTro }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="saveUser">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách người dùng</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="usersTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Mã ND</th>
+                            <th>Tên đăng nhập</th>
+                            <th>Họ tên</th>
+                            <th>Email</th>
+                            <th>SĐT</th>
+                            <th>Chuyên khoa</th>
+                            <th>Vai trò</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.MaND }}</td>
+                            <td>{{ user.TenDangNhap }}</td>
+                            <td>{{ user.HoTen }}</td>
+                            <td>{{ user.Email }}</td>
+                            <td>{{ user.SDT }}</td>
+                            <td>{{ user.ChuyenKhoa or '' }}</td>
+                            <td>
+                                <span class="badge badge-info">{{ user.VaiTro }}</span>
+                            </td>
+                            <td>
+                                {% if user.TrangThai %}
+                                <span class="badge badge-success">Hoạt động</span>
+                                {% else %}
+                                <span class="badge badge-danger">Đã khóa</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if user.TrangThai %}
+                                <button type="button" class="btn btn-warning btn-sm lock-user"
+                                    data-id="{{ user.MaND }}">
+                                    <i class="fas fa-lock"></i>
+                                </button>
+                                {% else %}
+                                <button type="button" class="btn btn-success btn-sm unlock-user"
+                                    data-id="{{ user.MaND }}">
+                                    <i class="fas fa-unlock"></i>
+                                </button>
+                                {% endif %}
+                                <button type="button" class="btn btn-info btn-sm edit-user" data-id="{{ user.MaND }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} {% block scripts %}
+<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Khởi tạo DataTable
+        $('#usersTable').DataTable({
+            "responsive": true,
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/i18n/Vietnamese.json"
+            }
+        });
+
+        // Xử lý sự kiện thêm người dùng
+        $('#saveUser').click(function () {
+            const formData = {
+                username: $('#username').val(),
+                password: $('#password').val(),
+                hoten: $('#hoten').val(),
+                email: $('#email').val(),
+                sdt: $('#sdt').val(),
+                chuyenkhoa: $('#chuyenkhoa').val(),
+                vaitro: $('#vaitro').val()
+            };
+
+            $.ajax({
+                url: '/admin/users',
+                method: 'POST',
+                data: formData,
+                success: function (response) {
+                    location.reload();
+                },
+                error: function () {
+                    // Tạm thời reload để hiện flash message từ server nếu có
+                    location.reload();
+                }
+            });
+        });
+
+        // Xử lý sự kiện khóa/mở người dùng
+        $('.lock-user, .unlock-user').click(function () {
+            const userId = $(this).data('id');
+            const action = $(this).hasClass('lock-user') ? 'lock' : 'unlock';
+
+            $.ajax({
+                url: `/admin/${action}_user/${userId}`,
+                method: 'POST',
+                success: function (response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert('Lỗi: ' + response.message);
+                    }
+                },
+                error: function () {
+                    alert(`Lỗi khi ${action} người dùng!`);
+                }
+            });
+        });
+
+        // Xử lý sự kiện sửa người dùng
+        $('.edit-user').click(function () {
+            const userId = $(this).data('id');
+
+            $.ajax({
+                url: `/admin/get_user/${userId}`,
+                method: 'GET',
+                success: function (user) {
+                    $('#username').val(user.TenDangNhap);
+                    $('#password').val('');
+                    $('#hoten').val(user.HoTen);
+                    $('#email').val(user.Email);
+                    $('#sdt').val(user.SDT);
+                    $('#chuyenkhoa').val(user.ChuyenKhoa || '');
+
+                    // Chọn vai trò
+                    if (user.MaVaiTro) {
+                        $('#vaitro').val(user.MaVaiTro);
+                    }
+
+                    $('#addUserModalLabel').text('Chỉnh sửa thông tin người dùng');
+                    $('#saveUser').text('Cập nhật');
+                    // Lưu ID user vào nút save để biết đang update
+                    $('#saveUser').data('userid', userId);
+
+                    // Lưu ý: Logic update cần viết thêm route update_user cụ thể xử lý POST
+                    // Ở đây đang dùng chung modal add, cần xử lý JS để gọi đúng API update
+
+                    $('#addUserModal').modal('show');
+                },
+                error: function () {
+                    alert('Lỗi khi lấy thông tin người dùng!');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

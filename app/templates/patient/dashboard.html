@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Bảng điều khiển Bệnh nhân{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Xin chào, {{ patient.HoTen }}!</h1>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Lịch hẹn sắp tới
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ upcoming_appointments|length }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Lịch sử khám</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ recent_appointments|length }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-history fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Cần tái khám</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                **{{ follow_up_count }}**
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-bell fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Hồ sơ cá nhân</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <a href="{{ url_for('patient.profile') }}" class="btn btn-sm btn-info">Xem hồ sơ</a>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Lịch hẹn sắp tới</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Ngày giờ</th>
+                                    <th>Bác sĩ</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for appointment in upcoming_appointments %}
+                                <tr>
+                                    <td>{{ appointment.NgayGio.strftime('%H:%M ngày %d/%m/%Y') }}</td>
+                                    <td>{{ appointment.bac_si.HoTen }}</td>
+                                    <td>
+                                        <span class="badge badge-warning">Chờ khám</span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('patient.results', lh_id=appointment.MaLH) }}"
+                                            class="btn btn-sm btn-info">Xem kết quả</a>
+                                        <a href="{{ url_for('reception.cancel_appointment', lh_id=appointment.MaLH) }}"
+                                            class="btn btn-sm btn-warning">Hủy lịch</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Lịch sử khám gần đây</h6>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for appointment in recent_appointments %}
+                        <a href="{{ url_for('patient.results', lh_id=appointment.MaLH) }}"
+                            class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ appointment.bac_si.HoTen }}</h6>
+                                <small>{{ appointment.NgayGio.strftime('%d/%m/%Y %H:%M') }}</small>
+                            </div>
+                            {% if appointment.ket_qua %}
+                            <p class="mb-1">{{ appointment.ket_qua.ChanDoan }}</p>
+                            {% else %}
+                            <p class="mb-1">Đang chờ kết quả</p>
+                            {% endif %}
+                            <small>
+                                <span class="badge badge-success">Đã khám</span>
+                            </small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

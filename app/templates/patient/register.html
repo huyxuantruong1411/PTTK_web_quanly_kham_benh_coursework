@@ -1,0 +1,128 @@
+<!-- app/templates/patient/register.html -->
+{% extends "base.html" %}
+
+{% block title %}Đăng ký bệnh nhân{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="text-center">Đăng ký tài khoản bệnh nhân</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="">
+                        {{ form.hidden_tag() }}
+                        <div class="form-group mb-3">
+                            {{ form.username.label(class="form-control-label") }}
+                            {{ form.username(class="form-control") }}
+                            {% if form.username.errors %}
+                            <div class="text-danger">
+                                {% for error in form.username.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group mb-3">
+                            {{ form.password.label(class="form-control-label") }}
+                            {{ form.password(class="form-control") }}
+                            {% if form.password.errors %}
+                            <div class="text-danger">
+                                {% for error in form.password.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group mb-3">
+                            {{ form.confirm_password.label(class="form-control-label") }}
+                            {{ form.confirm_password(class="form-control") }}
+                            {% if form.confirm_password.errors %}
+                            <div class="text-danger">
+                                {% for error in form.confirm_password.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group mb-3">
+                            {{ form.hoten.label(class="form-control-label") }}
+                            {{ form.hoten(class="form-control") }}
+                            {% if form.hoten.errors %}
+                            <div class="text-danger">
+                                {% for error in form.hoten.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group mb-3">
+                            {{ form.ngaysinh.label(class="form-control-label") }}
+                            {{ form.ngaysinh(class="form-control") }}
+                            {% if form.ngaysinh.errors %}
+                            <div class="text-danger">
+                                {% for error in form.ngaysinh.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group mb-3">
+                            {{ form.gioitinh.label(class="form-control-label") }}
+                            {{ form.gioitinh(class="form-control") }}
+                            {% if form.gioitinh.errors %}
+                            <div class="text-danger">
+                                {% for error in form.gioitinh.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group mb-3">
+                            {{ form.sdt.label(class="form-control-label") }}
+                            {{ form.sdt(class="form-control") }}
+                            {% if form.sdt.errors %}
+                            <div class="text-danger">
+                                {% for error in form.sdt.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group mb-3">
+                            {{ form.email.label(class="form-control-label") }}
+                            {{ form.email(class="form-control") }}
+                            {% if form.email.errors %}
+                            <div class="text-danger">
+                                {% for error in form.email.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group mb-3">
+                            {{ form.diachi.label(class="form-control-label") }}
+                            {{ form.diachi(class="form-control") }}
+                            {% if form.diachi.errors %}
+                            <div class="text-danger">
+                                {% for error in form.diachi.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group text-center">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                    <div class="text-center mt-3">
+                        <p>Đã có tài khoản? <a href="{{ url_for('patient.login') }}">Đăng nhập</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
