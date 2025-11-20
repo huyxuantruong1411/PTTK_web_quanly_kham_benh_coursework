@@ -20,8 +20,8 @@ NUM_DOCTORS = 10
 NUM_NURSES = 15
 NUM_PHARMACISTS = 5
 NUM_RECEPTIONISTS = 5
-NUM_PATIENTS = 2000     # Tạo 2000 bệnh nhân
-NUM_APPOINTMENTS = 5000 # Tạo 5000 lịch khám/hồ sơ bệnh án
+NUM_PATIENTS = 50
+NUM_APPOINTMENTS = 100
 
 # Danh sách thuốc mẫu thực tế để dữ liệu nhìn "thật" hơn
 SAMPLE_DRUGS = [
