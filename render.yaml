@@ -12,7 +12,7 @@ services:
       - key: SECRET_KEY
         value: your_random_secret_key_here  # Generate a strong random key (e.g., via Python: python -c 'import secrets; print(secrets.token_hex(16))')
       - key: MAIL_USERNAME
-        value: your_email@gmail.com
+        value: xuanhuy9a9@gmail.com
       - key: MAIL_PASSWORD
         sync: false  # Use Render's "Generate" or paste securely; don't commit to Git
 
